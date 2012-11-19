@@ -1,8 +1,15 @@
 #include <iostream>
+#include <sstream>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string>
 
 using namespace std;
+
+string performAction(string command){
+    cout << "Performing action: " << command << endl;
+    return "";
+}
 
 void* SocketHandler(void* lp){
     int *csock = (int*)lp;
@@ -10,6 +17,14 @@ void* SocketHandler(void* lp){
     char buffer[1024];
     int buffer_len = 1024;
     int bytecount;
+
+    // Upon first connection, set the working directory and send the MOD
+    string MOD = "Welcome to the terminal. Type ? for the list of commands\n> ";
+    const char* mod_string = MOD.c_str();
+    if((bytecount = send(*csock, mod_string, strlen(mod_string), 0))== -1){
+        cout << "Error sending data" << endl;
+        return 0;
+    }
 
     while(true){
     
@@ -19,11 +34,15 @@ void* SocketHandler(void* lp){
         
         return 0;
     }
-    //int client = *csock;
-    //cout << "Receiving data from: " << client << endl;
-    printf("Received bytes %d\nReceived string \"%s\"\n", bytecount, buffer);
-
-    if((bytecount = send(*csock, buffer, strlen(buffer), 0))== -1){
+    cout << "Received string: " <<  buffer;
+    stringstream ss;
+    string s;
+    ss << buffer;
+    ss >> s; 
+    // Get the response from the command and return it to the client
+    string response = performAction(s);
+    response.append("> ");
+    if((bytecount = send(*csock, response.c_str(), response.length(), 0))== -1){
         cout << "Error sending data" << endl;
         return 0;
     }
