@@ -11,11 +11,16 @@ void* SocketHandler(void* lp){
     int buffer_len = 1024;
     int bytecount;
 
+    while(true){
+    
     memset(buffer, 0, buffer_len);
     if((bytecount = recv(*csock, buffer, buffer_len, 0))== -1){
         cout << "Error receiving data" <<endl;
+        
         return 0;
     }
+    //int client = *csock;
+    //cout << "Receiving data from: " << client << endl;
     printf("Received bytes %d\nReceived string \"%s\"\n", bytecount, buffer);
 
     if((bytecount = send(*csock, buffer, strlen(buffer), 0))== -1){
@@ -24,7 +29,8 @@ void* SocketHandler(void* lp){
     }
     
     cout << "Sent bytes " << bytecount << endl;
-
+    }
+    return 0;
 }
 
 int main(){
