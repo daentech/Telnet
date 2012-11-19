@@ -4,6 +4,29 @@
 
 using namespace std;
 
+void* SocketHandler(void* lp){
+    int *csock = (int*)lp;
+
+    char buffer[1024];
+    int buffer_len = 1024;
+    int bytecount;
+
+    memset(buffer, 0, buffer_len);
+    if((bytecount = recv(*csock, buffer, buffer_len, 0))== -1){
+        cout << "Error receiving data" <<endl;
+        return 0;
+    }
+    printf("Received bytes %d\nReceived string \"%s\"\n", bytecount, buffer);
+
+    if((bytecount = send(*csock, buffer, strlen(buffer), 0))== -1){
+        cout << "Error sending data" << endl;
+        return 0;
+    }
+    
+    cout << "Sent bytes " << bytecount << endl;
+
+}
+
 int main(){
 
     cout << "Launching telnet server" << endl;
@@ -40,6 +63,7 @@ int main(){
 
     socklen_t addr_size = sizeof(sockaddr_in);
     int* csock;
+    pthread_t thread_id = 0;
 
     // Run the server forever
     while(true){
@@ -47,7 +71,9 @@ int main(){
         csock = (int*)malloc(sizeof(int));
         if((*csock = accept(sck, (sockaddr*)&host_addr, &addr_size)) >= 0){
             cout << "Received a connection" << endl;
-            
+            // A connection has been received, so spawn a thread to handle it 
+            pthread_create(&thread_id,0,&SocketHandler, (void*)csock );
+            pthread_detach(thread_id);
         }
     }
 
