@@ -74,12 +74,12 @@ string performAction(string command, string *wd){
     } else if (command.find("ls ") == 0 || command.find("ls\n") == 0 || command.find("ls\r") == 0){
         // ls command found
         cout << "ls command found" << endl;
-        response = exec(command.substr(0, command.length() - 2).c_str());
+        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());
     } else if (command.find("mkdir ") == 0){
         // mkdir command found
         cout << "mkdir found" << endl;
         // Make the folder named in the command
-        response = exec(command.substr(0, command.length() - 2).c_str());
+        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());
     } else if (command.find("pwd") == 0){
         // pwd found, so display the current working directory
         cout << "pwd found" << endl;
@@ -88,7 +88,7 @@ string performAction(string command, string *wd){
     } else if (command.find("logout") == 0){
         response = "quit\n";
     } else {
-        response = exec(command.substr(0, command.length() - 2).c_str());;
+        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());;
     }
     
     return response;
