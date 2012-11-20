@@ -28,17 +28,7 @@ string removeNewlineChars(string input){
     return input.erase(input.find_last_not_of(" \n\r\t")+1);
 }
 
-
-string change_dir(string command, string *curr_dir){
-    string error = "";
-    // Execute the provided cd command on the current directory    
-    // Upon completion either return a newline if success or the error message
-
-    // Store the new path in curr_path to return it
-
-    return error;
-}
-
+// Function which takes the action and performs it
 string performAction(string command, string *wd, string program_dir){
     command = removeNewlineChars(command);
     // Change to the current directory of this thread to perform the action
