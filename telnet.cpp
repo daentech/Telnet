@@ -21,18 +21,27 @@ string exec(const char* cmd) {
     return result;
 }
 
+// Remove the newline characters to handle linux and mac line endings
+string removeNewlineChars(string input){
+    return input.erase(input.find_last_not_of(" \n\r\t")+1);
+}
 
-string change_dir(string command, string curr_dir){
-    string new_path = "";
+
+string change_dir(string command, string *curr_dir){
+    string error = "";
     // Execute the provided cd command on the current directory    
+    // Upon completion either return a newline if success or the error message
 
-    return new_path;
+    // Store the new path in curr_path to return it
+
+    return error;
 }
 
 string performAction(string command, string *wd){
+    command = removeNewlineChars(command);
     cout << "Performing action: " << command << endl;
     string response = "";
-    if(command.length() <= 2){
+    if(command.length() == 0){
     } else if (command.find("?") == 0 || command.find("help") == 0){
         response = "Available commands:\n";
         response.append("cd <directory>\t\tChange directory to the one specified\n");
@@ -48,7 +57,7 @@ string performAction(string command, string *wd){
         // cd command found. Change the working directory
         cout << "cd command found" << endl;
         int pos = command.find(" ");
-        string path = command.substr(pos + 1, command.length() - pos - 3); 
+        string path = command.substr(pos + 1, command.length() - pos); 
         cout << "Path provided: " << path << endl;
         if(chdir(path.c_str()) != 0){
             // There was an error
@@ -82,15 +91,15 @@ string performAction(string command, string *wd){
             char newpath[2048];
             *wd = getcwd(newpath, 2048);
         }
-    } else if (command.find("ls ") == 0 || command.find("ls\n") == 0 || command.find("ls\r") == 0){
+    } else if (command.find("ls ") == 0 || command.compare("ls") == 0){
         // ls command found
         cout << "ls command found" << endl;
-        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());
+        response = exec(command.append(" 2>&1").c_str());
     } else if (command.find("mkdir ") == 0){
         // mkdir command found
         cout << "mkdir found" << endl;
         // Make the folder named in the command
-        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());
+        response = exec(command.append(" 2>&1").c_str());
     } else if (command.find("pwd") == 0){
         // pwd found, so display the current working directory
         cout << "pwd found" << endl;
@@ -99,7 +108,7 @@ string performAction(string command, string *wd){
     } else if (command.find("logout") == 0){
         response = "quit\n";
     } else {
-        response = exec(command.substr(0, command.length() - 2).append(" 2>&1").c_str());;
+        response = exec(command.append(" 2>&1").c_str());;
     }
     
     return response;
