@@ -8,6 +8,8 @@
 
 using namespace std;
 
+// Execute the given command by passing it to the pipe stream
+// Return the results from both stdout and stderr (so we get any missing programs as well)
 string exec(const char* cmd) {
     FILE* pipe = popen(cmd, "r");
     if (!pipe) return "ERROR";
