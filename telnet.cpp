@@ -21,6 +21,14 @@ string exec(const char* cmd) {
     return result;
 }
 
+
+string change_dir(string command, string curr_dir){
+    string new_path = "";
+    // Execute the provided cd command on the current directory    
+
+    return new_path;
+}
+
 string performAction(string command, string *wd){
     cout << "Performing action: " << command << endl;
     string response = "";
