@@ -7,6 +7,8 @@
 #include <errno.h>
 #include "unit_test.h"
 #include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
