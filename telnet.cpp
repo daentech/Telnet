@@ -185,15 +185,31 @@ void test(){
     actionresult = performAction("cd ../", &cwd, program_dir);
     // assert that the current working directory is one above the program dir
     assert(isParentDirectory(program_dir, cwd));
+    
     // Change back to program directory
     string command = "cd ";
     command.append(program_dir);
     performAction(command, &cwd, program_dir);
+
     // Run a ls test
     performAction("touch tmp.myfile", &cwd, program_dir);
     actionresult = performAction("ls", &cwd, program_dir);
-    actionresult = performAction("ls ..", &cwd, program_dir);
+
+    // assert that tmp.myfile exists
+    assert(fileExists("tmp.myfile", actionresult));
+
+    // Remove the temporary file
     performAction("rm tmp.myfile", &cwd, program_dir);
+
+    // Run a mkdir test
+    performAction("mkdir tmp", &cwd, program_dir);
+    actionresult = performAction("ls", &cwd, program_dir);
+    
+    // assert that tmp folder exists
+    assert(fileExists("tmp", actionresult));
+
+    // Remove the tmp folder
+    performAction("rmdir tmp", &cwd, program_dir);
 }
 
 int main(int argc, char* argv[]){

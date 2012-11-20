@@ -17,3 +17,7 @@ bool isParentDirectory(string child, string parent){
 
     return false;
 }
+
+bool fileExists(string needle, string haystack){
+    return haystack.find(needle) < haystack.length();
+}
