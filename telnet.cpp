@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "unit_test.h"
+#include <assert.h>
 
 using namespace std;
 
@@ -101,7 +102,7 @@ string performAction(string command, string *wd, string program_dir){
         response = *wd;
         response.append("\n");
     } else if (command.find("logout") == 0){
-        response = "quit\n";
+        response = "exit\n";
     } else {
         response = exec(command.append(" 2>&1").c_str());;
     }
@@ -126,6 +127,7 @@ void* SocketHandler(void* lp){
     const char* mod_string = MOD.c_str();
     if((bytecount = send(*csock, mod_string, strlen(mod_string), 0))== -1){
         cout << "Error sending data" << endl;
+        shutdown(*csock, 0);
         return 0;
     }
 
@@ -142,8 +144,15 @@ void* SocketHandler(void* lp){
     string s(buffer);
     // Get the response from the command and return it to the client
     string response = performAction(s, &wd, program_dir);
-    if(response.find("quit") == 0){
+    if(response.find("exit") == 0){
         // We are quitting
+        response = "[END OF INPUT]\n";
+        if((bytecount = send(*csock, response.c_str(), response.length(), 0))== -1){
+            cout << "Error sending data" << endl;
+            return 0;
+        }
+        cout << "Client disconnected" << endl;
+        shutdown(*csock, 0);
         free(csock);
         return 0;
     }
@@ -155,16 +164,65 @@ void* SocketHandler(void* lp){
     
     cout << "Sent bytes " << bytecount << endl;
     }
+    cout << "Client disconnected" << endl;
     return 0;
 }
 
-int main(){
+bool is_number(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+void test(){
+    string actionresult;
+    char path[2048];
+    string cwd = getcwd(path, 2048);
+    string program_dir = getcwd(path, 2048);    
+
+    // Run a cd test
+    actionresult = performAction("cd ../", &cwd, program_dir);
+    // assert that the current working directory is one above the program dir
+    assert(isParentDirectory(program_dir, cwd));
+    // Change back to program directory
+    string command = "cd ";
+    command.append(program_dir);
+    performAction(command, &cwd, program_dir);
+    // Run a ls test
+    performAction("touch tmp.myfile", &cwd, program_dir);
+    actionresult = performAction("ls", &cwd, program_dir);
+    actionresult = performAction("ls ..", &cwd, program_dir);
+    performAction("rm tmp.myfile", &cwd, program_dir);
+}
+
+int main(int argc, char* argv[]){
 
     cout << "Launching telnet server" << endl;
 
-    // Begin listening for a connection on port 23
+    // Begin listening for a connection on port 23 or whichever port is passed in
     // Default telnet port
     int listen_port = 6770;
+    bool tests = false;
+
+    if(argc > 1){
+        // We have had some arguments passed in
+        for(int i = 1; i < argc; i++){
+            string args(argv[i]);
+            if(args.compare("-test") == 0){
+                tests = true;
+            } else if (is_number(args)){
+                listen_port = atoi(args.c_str());
+            }
+        }
+    }
+
+    // if tests is true, execute the unit tests
+    if(tests){
+        cout << "Beginning unit testing" << endl;
+        test();
+    }
+
 
     struct sockaddr_in host_addr;
     int sck = socket(AF_INET, SOCK_STREAM, 0);
