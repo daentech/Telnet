@@ -8,8 +8,22 @@
 
 using namespace std;
 
+string exec(const char* cmd) {
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) return "ERROR";
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe)) {
+        if(fgets(buffer, 128, pipe) != NULL)
+            result += buffer;
+    }
+    pclose(pipe);
+    return result;
+}
+
 string performAction(string command, string *wd){
     cout << "Performing action: " << command << endl;
+    cout << "Comparing command to ls: " << command.find("ls\n") << endl;
     string response = "";
     if (command.find("?") == 0 || command.find("help") == 0){
         response = "Available commands:\n";
@@ -23,7 +37,7 @@ string performAction(string command, string *wd){
         // cd command found. Change the working directory
         cout << "cd command found" << endl;
         int pos = command.find(" ");
-        string path = command.substr(pos + 1, command.length() - pos); 
+        string path = command.substr(pos + 1, command.length() - pos - 3); 
         cout << "Path provided: " << path << endl;
         if(chdir(path.c_str()) != 0){
             // There was an error
@@ -60,6 +74,7 @@ string performAction(string command, string *wd){
     } else if (command.find("ls ") == 0 || command.find("ls\n") == 0){
         // ls command found
         cout << "ls command found" << endl;
+        response = exec(command.substr(0, command.length() - 2).c_str());
     } else if (command.find("mkdir ") == 0){
         // mkdir command found
         cout << "mkdir found" << endl;
