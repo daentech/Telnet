@@ -5,6 +5,7 @@
 #include <string>
 #include <unistd.h>
 #include <errno.h>
+#include "unit_test.h"
 
 using namespace std;
 
@@ -128,6 +129,7 @@ void* SocketHandler(void* lp){
         return 0;
     }
 
+    // Loop the connection until logout is received
     while(true){
     
     memset(buffer, 0, buffer_len);
@@ -205,5 +207,4 @@ int main(){
             pthread_detach(thread_id);
         }
     }
-
 }
