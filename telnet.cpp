@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include "unit_test.h"
