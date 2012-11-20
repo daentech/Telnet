@@ -23,9 +23,9 @@ string exec(const char* cmd) {
 
 string performAction(string command, string *wd){
     cout << "Performing action: " << command << endl;
-    cout << "Comparing command to ls: " << command.find("ls\n") << endl;
     string response = "";
-    if (command.find("?") == 0 || command.find("help") == 0){
+    if(command.length() <= 2){
+    } else if (command.find("?") == 0 || command.find("help") == 0){
         response = "Available commands:\n";
         response.append("cd <directory>\t\tChange directory to the one specified\n");
         response.append("help <program>\t\tShow the help for the given program. If none provided, displays this message\n");
@@ -71,7 +71,7 @@ string performAction(string command, string *wd){
             char newpath[2048];
             *wd = getcwd(newpath, 2048);
         }
-    } else if (command.find("ls ") == 0 || command.find("ls\n") == 0){
+    } else if (command.find("ls ") == 0 || command.find("ls\n") == 0 || command.find("ls\r") == 0){
         // ls command found
         cout << "ls command found" << endl;
         response = exec(command.substr(0, command.length() - 2).c_str());
@@ -79,6 +79,7 @@ string performAction(string command, string *wd){
         // mkdir command found
         cout << "mkdir found" << endl;
         // Make the folder named in the command
+        response = exec(command.substr(0, command.length() - 2).c_str());
     } else if (command.find("pwd") == 0){
         // pwd found, so display the current working directory
         cout << "pwd found" << endl;
@@ -87,7 +88,7 @@ string performAction(string command, string *wd){
     } else if (command.find("logout") == 0){
         response = "quit\n";
     } else {
-        response = "Command not found\n";
+        response = exec(command.substr(0, command.length() - 2).c_str());;
     }
     
     return response;
