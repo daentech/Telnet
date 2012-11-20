@@ -33,6 +33,9 @@ string performAction(string command, string *wd){
         response.append("mkdir <directory>\tCreates the directory of the given name in the current working directory\n");
         response.append("pwd\t\t\tPrint the current working directory\n");
         response.append("logout\t\t\tLogout of the system\n");
+        response.append("\n");
+        response.append("Other shell commands are available in their standard form, such as rm, rmdir, touch etc.\n");
+        response.append("Programs which require the full terminal screen, such as 'vim' will not work\n");
     } else if(command.find("cd ") == 0){
         // cd command found. Change the working directory
         cout << "cd command found" << endl;
