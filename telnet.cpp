@@ -39,8 +39,10 @@ string change_dir(string command, string *curr_dir){
     return error;
 }
 
-string performAction(string command, string *wd){
+string performAction(string command, string *wd, string program_dir){
     command = removeNewlineChars(command);
+    // Change to the current directory of this thread to perform the action
+    chdir(wd->c_str());
     cout << "Performing action: " << command << endl;
     string response = "";
     if(command.length() == 0){
@@ -112,7 +114,9 @@ string performAction(string command, string *wd){
     } else {
         response = exec(command.append(" 2>&1").c_str());;
     }
-    
+
+    // Change back to the program directory 
+    chdir(program_dir.c_str());
     return response;
 }
 
@@ -126,6 +130,7 @@ void* SocketHandler(void* lp){
     // Upon first connection, set the working directory and send the MOD
     char path[2048];
     string wd = getcwd(path, 2048);
+    string program_dir = getcwd(path, 2048);
     string MOD = "Welcome to the terminal. Type ? for the list of commands\n> ";
     const char* mod_string = MOD.c_str();
     if((bytecount = send(*csock, mod_string, strlen(mod_string), 0))== -1){
@@ -144,7 +149,7 @@ void* SocketHandler(void* lp){
     cout << "Received string: " <<  buffer;
     string s(buffer);
     // Get the response from the command and return it to the client
-    string response = performAction(s, &wd);
+    string response = performAction(s, &wd, program_dir);
     if(response.find("quit") == 0){
         // We are quitting
         free(csock);
