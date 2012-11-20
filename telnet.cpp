@@ -61,30 +61,30 @@ string performAction(string command, string *wd, string program_dir){
         if(chdir(path.c_str()) != 0){
             // There was an error
             switch(errno){
-            case EACCES:
-                response = "Search permission is denied\n";
-                break;
-            case EFAULT:
-                response = "Path outside accesible address space\n";
-                break;
-            case EIO:
-                response = "An I/O error occurred\n";
-                break;
-            case ELOOP:
-                response = "Too many symbolic links when resolving the path\n";
-                break;
-            case ENAMETOOLONG:
-                response = "Path provided was too long\n";
-                break;
-            case ENOENT:
-                response = "File does not exist\n";
-                break;
-            case ENOMEM:
-                response = "Insufficient Kernel memory available\n";
-                break;
-            case ENOTDIR:
-                response = "Path is not a directory\n";
-                break;
+                case EACCES:
+                    response = "Search permission is denied\n";
+                    break;
+                case EFAULT:
+                    response = "Path outside accesible address space\n";
+                    break;
+                case EIO:
+                    response = "An I/O error occurred\n";
+                    break;
+                case ELOOP:
+                    response = "Too many symbolic links when resolving the path\n";
+                    break;
+                case ENAMETOOLONG:
+                    response = "Path provided was too long\n";
+                    break;
+                case ENOENT:
+                    response = "File does not exist\n";
+                    break;
+                case ENOMEM:
+                    response = "Insufficient Kernel memory available\n";
+                    break;
+                case ENOTDIR:
+                    response = "Path is not a directory\n";
+                    break;
             }
         } else {
             char newpath[2048];
@@ -136,36 +136,36 @@ void* SocketHandler(void* lp){
 
     // Loop the connection until logout is received
     while(true){
-    
-    memset(buffer, 0, buffer_len);
-    if((bytecount = recv(*csock, buffer, buffer_len, 0))== -1){
-        cout << "Error receiving data" <<endl;
-        
-        return 0;
-    }
-    cout << "Received string: " <<  buffer;
-    string s(buffer);
-    // Get the response from the command and return it to the client
-    string response = performAction(s, &wd, program_dir);
-    if(response.find("exit") == 0){
-        // We are quitting
-        response = "[END OF INPUT]\n";
+
+        memset(buffer, 0, buffer_len);
+        if((bytecount = recv(*csock, buffer, buffer_len, 0))== -1){
+            cout << "Error receiving data" <<endl;
+
+            return 0;
+        }
+        cout << "Received string: " <<  buffer;
+        string s(buffer);
+        // Get the response from the command and return it to the client
+        string response = performAction(s, &wd, program_dir);
+        if(response.find("exit") == 0){
+            // We are quitting
+            response = "[END OF INPUT]\n";
+            if((bytecount = send(*csock, response.c_str(), response.length(), 0))== -1){
+                cout << "Error sending data" << endl;
+                return 0;
+            }
+            cout << "Client disconnected" << endl;
+            shutdown(*csock, 0);
+            free(csock);
+            return 0;
+        }
+        response.append("> ");
         if((bytecount = send(*csock, response.c_str(), response.length(), 0))== -1){
             cout << "Error sending data" << endl;
             return 0;
         }
-        cout << "Client disconnected" << endl;
-        shutdown(*csock, 0);
-        free(csock);
-        return 0;
-    }
-    response.append("> ");
-    if((bytecount = send(*csock, response.c_str(), response.length(), 0))== -1){
-        cout << "Error sending data" << endl;
-        return 0;
-    }
-    
-    cout << "Sent bytes " << bytecount << endl;
+
+        cout << "Sent bytes " << bytecount << endl;
     }
     cout << "Client disconnected" << endl;
     return 0;
@@ -188,7 +188,7 @@ void test(){
     actionresult = performAction("cd ../", &cwd, program_dir);
     // assert that the current working directory is one above the program dir
     assert(isParentDirectory(program_dir, cwd));
-    
+
     // Change back to program directory
     string command = "cd ";
     command.append(program_dir);
@@ -207,7 +207,7 @@ void test(){
     // Run a mkdir test
     performAction("mkdir tmp", &cwd, program_dir);
     actionresult = performAction("ls", &cwd, program_dir);
-    
+
     // assert that tmp folder exists
     assert(fileExists("tmp", actionresult));
 
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]){
     }
 
     bzero((char*) &host_addr, sizeof(host_addr));
-    
+
     host_addr.sin_family = AF_INET;
     host_addr.sin_addr.s_addr = INADDR_ANY;
     host_addr.sin_port = htons(listen_port);
